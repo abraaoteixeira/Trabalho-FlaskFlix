@@ -26,10 +26,21 @@
                 a variável parCatalogo é iuma lista de temas. O tema é um objeto que possui
                 o atributo .nome e o atributo .series. O atributo .series é uma lista de series. -->                
                 {% for tema in parCatalogo %}
-                    <li>{{tema.nome}}</li>
+                    <li><a href="{{ url_for('modificar_tema', nome_do_tema=tema.nome) }}">{{tema.nome}}</a></li>
                 {% endfor %}
             </ul>
         </section>
+        <div class="dash">
+            <form method="post" action="{{ url_for('adicionar_tema') }}" class="form_dash">
+                <h1>Adicionar Tema</h1>
+
+                <div class="camp">
+                    <h2>Nome:</h2>
+                    <input type="text" name="tema" id="nome" placeholder="Nome do tema" required>
+                    <button type="submit" class="botao">Adicionar</button>
+                </div>
+            </form>
+        </div>
         <section>
             <h2>Séries cadastradas:</h2>
             <ul>
@@ -37,11 +48,34 @@
                     <!-- cada tema possui o atributo .series, que é uma lista de series.
                     cada serie dessa lista é um objeto, que possui o atributo .titulo. -->
                     {% for serie in tema.series %}    
-                        <li>{{serie.titulo}}</li>
+                        <li><a href="{{ url_for('modificar_serie', nome_serie=serie.titulo) }}">{{serie.titulo}}</a></li>
                     {% endfor %}
                 {% endfor %}
             </ul>
-        </section>        
+        </section>
+        <div class="dash">
+            <form method="post" action="{{ url_for('adicionar_serie') }}" class="form_dash">
+                <h1>Adicionar Série</h1>
+
+                <div class="camp">
+                    <h2>Nome:</h2>
+                    <input type="text" name="nome" id="nome" placeholder="Nome da Série" required>
+                    <h2>Tema:</h2>
+                    <input type="text" name="tema" id="tema" placeholder="Escreva um Tema já existente" required>
+                    <h2>Sinopse:</h2>
+                    <input type="text" name="sinopse" id="sinopse" placeholder="Sinopse" required>
+                    <h2>Temporadas:</h2>
+                    <input type="number" name="temporadas" id="temporadas" required>
+                    <h2>Avaliação:</h2>
+                    <input type="text" name="avaliacao" id="avaliacao" required>
+                    <h2>Elenco:</h2>
+                    <input type="text" name="elenco" id="elenco" required>
+                    <h2>Imagem:</h2>
+                    <input type="file" name="imagem" id="imagem" required>
+                    <button type="submit" class="botao">Adicionar</button>
+                </div>
+            </form>
+        </div>        
     </main>
     <footer>
     </footer>

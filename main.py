@@ -123,6 +123,108 @@ def logout():
     conteudo = render_template('index.html', parSerieDestaque=serieDestaque, parCatalogo=catalogo)
     return conteudo
 
+@app.route("/modificar_tema/<nome_do_tema>", methods=["GET", "POST"])
+def modificar_tema(nome_do_tema):
+
+    tema = Tema(nome_do_tema)
+
+    if request.method == "POST" and request.form.get("form_id") == "form1":
+        nome = request.form["novo_nome"]
+        for t in catalogo:
+            if t.nome == tema.nome:
+                t.nome = nome
+                break
+        conteudo = render_template("dashboard.html", parCatalogo=catalogo)
+    elif request.method == "POST" and request.form.get("form_id") == "form2":
+        for t in catalogo:
+            if t.nome == tema.nome:
+                catalogo.remove(t)
+                break
+            conteudo = render_template("dashboard.html", parCatalogo=catalogo)
+    else: 
+        conteudo = render_template("modificar_tema.html", parTema=tema)
+        return conteudo
+# Uma função para encontrar a série pelo nome no catálogo
+def encontrar_serie(nome_serie):
+    for tema in catalogo:
+        for serie in tema.series:
+            if serie.titulo == nome_serie:
+                return serie
+    return None
+
+
+# Uma função para atualizar os atributos da série com os dados do formulário
+def atualizar_serie(serie, dados):
+    if dados["tema"]:
+        # Remove a série do tema atual
+        for tema in catalogo:
+            if serie in tema.series:
+                tema.series.remove(serie)
+                break
+        # Adiciona a série ao novo tema
+        for tema in catalogo:
+            if tema.nome == dados["tema"]:
+                tema.series.append(serie)
+                break
+
+    # Atualiza os outros atributos da série
+    serie.titulo = dados["nome"]
+    serie.imagem = dados["imagem"]
+    serie.sinopse = dados["sinopse"]
+    serie.temporadas = dados["temporadas"]
+    serie.avaliacao = dados["avaliacao"]
+    serie.elenco = dados["elenco"]
+
+
+@app.route("/modificar_serie/<nome_serie>", methods=["GET", "POST"])
+def modificar_serie(nome_serie):
+    # Encontra a série pelo nome
+    serie = encontrar_serie(nome_serie)
+    if not serie:
+        return "Série não encontrada"
+
+    if request.method == "POST" and request.form.get("form_id") == "form_atualizar":
+        # Atualiza a série com os dados do formulário
+        atualizar_serie(serie, request.form)
+        conteudo = render_template("dashboard.html", parCatalogo=catalogo)
+
+    elif request.method == "POST" and request.form.get("form_id") == "form_excluir":
+        # Remove a série do catálogo
+        for tema in catalogo:
+            if serie in tema.series:
+                tema.series.remove(serie)
+                break
+        conteudo = render_template("dashboard.html", parCatalogo=catalogo)
+
+    else:
+        conteudo = render_template("modificar_serie.html", parserie=serie)
+
+    return conteudo
+
+@app.route("/adicionar_tema", methods=["GET", "POST"])
+def adicionar_tema():
+    nome = request.form["tema"]
+    novo_tema = Tema(nome)
+    catalogo.append(novo_tema)
+    
+    return render_template("dashboard.html", parCatalogo=catalogo)
+
+@app.route("/adicionar_serie", methods=["GET", "POST"])
+def adicionar_serie():
+    nome = request.form["nome"]
+    nome_do_tema = request.form["tema"]
+    imagem = request.form["imagem"]
+    sinopse = request.form["sinopse"]
+    temporadas = request.form["temporadas"]
+    avaliacao = request.form["avaliacao"]
+    elenco = request.form["elenco"]
+    serie = Serie(nome, imagem, sinopse, temporadas, avaliacao, elenco)
+    for s in catalogo:
+        if s.nome == nome_do_tema:
+            s.adicionar_serie(serie)
+            break
+    return render_template("dashboard.html", parCatalogo=catalogo)
+
 # EXECUTAR O PROGRAMA (RODAR O SITE)
 if __name__ == '__main__':
     app.run(debug=True)
